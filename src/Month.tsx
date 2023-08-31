@@ -142,7 +142,7 @@ export const MonthStyle = {
   day: (
     weekID: number,
     weekDay: number,
-    size: number = 40,
+    size: number = 30,
     hasBorder: boolean = true,
     isCircled: boolean = true,
   ): CSSProperties => ({
