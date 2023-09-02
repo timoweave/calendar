@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { CSSProperties, useEffect } from "react";
+import { CSSProperties } from "react";
 import { CalendarState, useCalendarFromContext } from "./Calendar";
 
 export const openCalendarConfig = (config: CalendarState) => {
@@ -45,9 +45,6 @@ export const CalendarConfig = () => {
     lastMonth,
     setLastMonth,
   } = config;
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => openCalendarConfig(config), []); // TDB: testing
 
   return (
     <dialog ref={configDialogRef} style={CalendarConfigStyle.root}>

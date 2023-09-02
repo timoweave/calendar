@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useMemo, useState, CSSProperties } from "react";
+import { useCalendarFromContext } from "./Calendar";
 
 export const getWeekDayName = (day: number): string => {
   const weekDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -64,6 +65,14 @@ export const getOrderedWeekNams = (firstWeekDay: number) => {
     weekDayNameList.push(...weekDayNameList.splice(0, 1));
   }
   return weekDayNameList;
+};
+
+export const isSameDate = (d1: Date, d2: Date): boolean => {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
 };
 
 export const useMonth = (props: { month: number; year: number }) => {
@@ -135,6 +144,7 @@ export const MonthStyle = {
   day: (
     weekID: number,
     weekDay: number,
+    isCurrentDay: boolean = false,
     size: number = 30,
     hasBorder: boolean = true,
     isCircled: boolean = true,
@@ -146,6 +156,8 @@ export const MonthStyle = {
     display: "grid",
     placeContent: "center",
     gridArea: `wk_${weekID}_${weekDay}`,
+    color: isCurrentDay ? "white" : undefined,
+    backgroundColor: isCurrentDay ? "cadetblue" : undefined,
   }),
   weekdayName: (day: number): CSSProperties => ({
     gridArea: `wk_d_${day}`,
@@ -162,7 +174,9 @@ export const MonthStyle = {
 };
 
 export function Month(props: { month: number; year: number }) {
+  const calendar = useCalendarFromContext();
   const monthState = useMonth({ month: props.month, year: props.year });
+  const { currentDate } = calendar;
 
   return (
     <div style={MonthStyle.root}>
@@ -176,9 +190,16 @@ export function Month(props: { month: number; year: number }) {
         ))}
         {monthState.weeks.map((week, weekID) =>
           week
-            .map((date) => ({ day: date.getDate(), weekDay: date.getDay() }))
-            .map(({ day, weekDay }) => (
-              <div key={day} style={MonthStyle.day(weekID, weekDay)}>
+            .map((date) => ({
+              day: date.getDate(),
+              weekDay: date.getDay(),
+              isCurrentDay: isSameDate(date, currentDate),
+            }))
+            .map(({ day, weekDay, isCurrentDay }) => (
+              <div
+                key={day}
+                style={MonthStyle.day(weekID, weekDay, isCurrentDay)}
+              >
                 {day}
               </div>
             )),

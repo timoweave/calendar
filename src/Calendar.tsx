@@ -51,6 +51,9 @@ export interface CalendarState {
   monthCount: number;
   firstMonths: number[];
   lastMonths: number[];
+  firstBlanks: number[];
+  currentDate: Date;
+  setCurrentDate: React.Dispatch<React.SetStateAction<Date>>;
 }
 
 const CALENDAR_STATE_DEFAULT: CalendarState = {
@@ -68,6 +71,9 @@ const CALENDAR_STATE_DEFAULT: CalendarState = {
   monthCount: 0,
   firstMonths: [],
   lastMonths: [],
+  firstBlanks: [],
+  currentDate: new Date(),
+  setCurrentDate: () => {},
 };
 
 export const useCalendar = (props?: Partial<CalendarState>): CalendarState => {
@@ -113,6 +119,16 @@ export const useCalendar = (props?: Partial<CalendarState>): CalendarState => {
     [months],
   );
 
+  const firstBlanks = useMemo(
+    () =>
+      monthCount < 4
+        ? []
+        : Array.from({ length: firstMonth % 4 }).map((_, i) => i),
+    [firstMonth, monthCount],
+  );
+
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+
   return {
     configDialogRef,
     years,
@@ -128,6 +144,9 @@ export const useCalendar = (props?: Partial<CalendarState>): CalendarState => {
     monthCount,
     firstMonths,
     lastMonths,
+    firstBlanks,
+    currentDate,
+    setCurrentDate,
   };
 };
 
@@ -145,11 +164,13 @@ export const CalendarStyle = {
 
 export const Calendar = () => {
   const calendar = useCalendarFromContext();
-  const { years, firstMonths, lastMonths, months, monthCount } = calendar;
-  console.log({ years, firstMonths, lastMonths, months, monthCount });
+  const { years, firstBlanks, monthCount } = calendar;
 
   return (
     <div style={CalendarStyle.root(monthCount)}>
+      {firstBlanks.map((i) => (
+        <div key={i} />
+      ))}
       {years.map((year) => (
         <Year key={year} year={year} />
       ))}
