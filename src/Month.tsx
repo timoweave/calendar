@@ -65,21 +65,14 @@ export const getOrderedWeekNams = (firstWeekDay: number) => {
   }
   return weekDayNameList;
 };
-export const useMonth = (props?: { month?: number; year?: number }) => {
+
+export const useMonth = (props: { month: number; year: number }) => {
   const [firstWeekDay, setFirstWeekDay] = useState<number>(0); // sun 0, [0,1,2,3,4,5,6]
   const lastWeekDay = useMemo<number>(
     () => (firstWeekDay + 7 - 1) % 7,
     [firstWeekDay],
   );
-  const [year, setYear] = useState<number>(() => {
-    const givenYear = props?.year;
-    if (givenYear != null) {
-      return givenYear;
-    }
-
-    const current = new Date();
-    return current.getFullYear();
-  });
+  const [year, setYear] = useState<number>(props.year);
   const [month, setMonth] = useState<number>(() => {
     const givenMonth = props?.month;
     if (givenMonth != null) {
@@ -160,16 +153,16 @@ export const MonthStyle = {
   }),
   monthName: {
     color: "white",
-    backgroundColor: "teal",
+    backgroundColor: "cornflowerblue",
   } as CSSProperties,
   year: {
-    color: "teal",
+    color: "cornflowerblue",
     fontWeight: 700,
   } as CSSProperties,
 };
 
-export function Month(props?: { month?: number; year?: number }) {
-  const monthState = useMonth({ month: props?.month, year: props?.year });
+export function Month(props: { month: number; year: number }) {
+  const monthState = useMonth({ month: props.month, year: props.year });
 
   return (
     <div style={MonthStyle.root}>

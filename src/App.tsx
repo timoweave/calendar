@@ -1,11 +1,15 @@
 /* eslint-disable react-refresh/only-export-components */
-// import { useEffect, useMemo, useState, CSSProperties } from "react";
+import { Calendar, CalendarProvider } from "./Calendar";
+import { CalendarConfig, CalendarConfigOpenButton } from "./CalendarConfig";
+
 import "./App.css";
-import { Year } from "./Year";
+
 export function App() {
   return (
-    <>
-      <Year firstMonth={0} lastMonth={11} />
-    </>
+    <CalendarProvider>
+      <CalendarConfigOpenButton title="Calendar" />
+      <Calendar />
+      <CalendarConfig />
+    </CalendarProvider>
   );
 }
