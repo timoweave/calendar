@@ -148,8 +148,8 @@ export const CalendarConfig = () => {
         <input
           style={{ gridArea: "day_size_input", width: "100%" }}
           type="number"
-          min="0"
-          max="60"
+          min="16"
+          max="200"
           value={size}
           onChange={(e) => setSize(parseInt(e.target.value, 10))}
         ></input>
