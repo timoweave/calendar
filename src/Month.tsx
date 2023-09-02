@@ -2,9 +2,47 @@
 import { useEffect, useMemo, useState, CSSProperties } from "react";
 import { useCalendarFromContext } from "./Calendar";
 
-export const getWeekDayName = (day: number): string => {
-  const weekDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  return weekDayNames[day];
+export interface MonthName {
+  name: string;
+  nnn: string;
+  nn: string;
+  n: string;
+  month: number;
+}
+
+export const MONT_NAME_LIST: MonthName[] = [
+  { n: "J", nn: "Ja", nnn: "Jan", month: 0, name: "January" },
+  { n: "F", nn: "Fb", nnn: "Feb", month: 1, name: "Feburary" },
+  { n: "M", nn: "Mr", nnn: "Mar", month: 2, name: "March" },
+  { n: "A", nn: "Ap", nnn: "Apr", month: 3, name: "April" },
+  { n: "M", nn: "My", nnn: "May", month: 4, name: "May" },
+  { n: "J", nn: "Jn", nnn: "Jun", month: 5, name: "June" },
+  { n: "J", nn: "Jl", nnn: "Jul", month: 6, name: "July" },
+  { n: "A", nn: "Ag", nnn: "Aug", month: 7, name: "August" },
+  { n: "S", nn: "Sp", nnn: "Sep", month: 8, name: "September" },
+  { n: "O", nn: "Ot", nnn: "Oct", month: 9, name: "October" },
+  { n: "N", nn: "Nv", nnn: "Nov", month: 10, name: "November" },
+  { n: "D", nn: "Dc", nnn: "Dec", month: 11, name: "December" },
+];
+
+export interface WeekDayName {
+  name: string;
+  n: string;
+  day: number;
+}
+
+export const WEEK_DAY_NAME_LIST: WeekDayName[] = [
+  { name: "Sun", n: "S", day: 0 },
+  { name: "Mon", n: "M", day: 1 },
+  { name: "Tue", n: "T", day: 2 },
+  { name: "Wed", n: "W", day: 3 },
+  { name: "Thu", n: "T", day: 4 },
+  { name: "Fri", n: "F", day: 5 },
+  { name: "Sat", n: "S", day: 6 },
+];
+
+export const getWeekDayName = (day: number): WeekDayName => {
+  return WEEK_DAY_NAME_LIST[day];
 };
 
 export const getMonthName = (month: number): string => {
@@ -24,16 +62,6 @@ export const getMonthName = (month: number): string => {
   ];
   return weekDayNames[month];
 };
-
-export const WEEK_DAY_NAME_LIST = [
-  { name: "Sun", day: 0 },
-  { name: "Mon", day: 1 },
-  { name: "Tue", day: 2 },
-  { name: "Wed", day: 3 },
-  { name: "Thu", day: 4 },
-  { name: "Fri", day: 5 },
-  { name: "Sat", day: 6 },
-];
 
 export const getDates = (year: number, month: number): Date[] => {
   const dates = Array.from({ length: 33 })
@@ -96,7 +124,7 @@ export const useMonth = (props: { month: number; year: number }) => {
     () => getDatesPerWeek(dates, lastWeekDay),
     [dates, lastWeekDay],
   );
-  const weekDayNames = useMemo<{ name: string; day: number }[]>(() => {
+  const weekDayNames = useMemo<WeekDayName[]>(() => {
     const weekDayNameList = [...WEEK_DAY_NAME_LIST];
     while (weekDayNameList[0].day !== firstWeekDay) {
       weekDayNameList.push(...weekDayNameList.splice(0, 1));
@@ -144,14 +172,14 @@ export const MonthStyle = {
   day: (
     weekID: number,
     weekDay: number,
-    isCurrentDay: boolean = false,
-    size: number = 30,
-    hasBorder: boolean = true,
-    isCircled: boolean = true,
+    isCurrentDay: boolean,
+    size: number,
+    hasBorder: boolean,
+    isCircledd: boolean,
   ): CSSProperties => ({
     width: `${size}px`,
     height: `${size}px`,
-    borderRadius: isCircled ? "50%" : undefined,
+    borderRadius: isCircledd ? "50%" : undefined,
     outline: hasBorder ? "1px solid #eeeeee" : undefined,
     display: "grid",
     placeContent: "center",
@@ -176,16 +204,16 @@ export const MonthStyle = {
 export function Month(props: { month: number; year: number }) {
   const calendar = useCalendarFromContext();
   const monthState = useMonth({ month: props.month, year: props.year });
-  const { currentDate } = calendar;
+  const { currentDate, size, hasBorder, isCircled } = calendar;
 
   return (
     <div style={MonthStyle.root}>
       <div style={MonthStyle.year}>{monthState.year}</div>
       <div style={MonthStyle.monthName}>{getMonthName(monthState.month)}</div>
       <div style={MonthStyle.monthLayout}>
-        {monthState.weekDayNames.map(({ name, day }) => (
+        {monthState.weekDayNames.map(({ name, n, day }) => (
           <div key={day} style={MonthStyle.weekdayName(day)}>
-            {name}
+            {size < 34 ? n : name}
           </div>
         ))}
         {monthState.weeks.map((week, weekID) =>
@@ -198,7 +226,14 @@ export function Month(props: { month: number; year: number }) {
             .map(({ day, weekDay, isCurrentDay }) => (
               <div
                 key={day}
-                style={MonthStyle.day(weekID, weekDay, isCurrentDay)}
+                style={MonthStyle.day(
+                  weekID,
+                  weekDay,
+                  isCurrentDay,
+                  size,
+                  hasBorder,
+                  isCircled,
+                )}
               >
                 {day}
               </div>

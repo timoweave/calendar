@@ -36,6 +36,8 @@ export const getMonths = (year: number, calendar: CalendarState): number[] => {
   );
 };
 
+export type MonthColumnCountEnum = 1 | 2 | 3 | 4 | 6 | 12;
+
 export interface CalendarState {
   configDialogRef: React.RefObject<HTMLDialogElement>;
   years: number[];
@@ -47,6 +49,8 @@ export interface CalendarState {
   setFirstMonth: React.Dispatch<React.SetStateAction<number>>;
   lastMonth: number;
   setLastMonth: React.Dispatch<React.SetStateAction<number>>;
+  size: number;
+  setSize: React.Dispatch<React.SetStateAction<number>>;
   months: [number, number][];
   monthCount: number;
   firstMonths: number[];
@@ -54,6 +58,14 @@ export interface CalendarState {
   firstBlanks: number[];
   currentDate: Date;
   setCurrentDate: React.Dispatch<React.SetStateAction<Date>>;
+  hasBorder: boolean;
+  setHasBorder: React.Dispatch<React.SetStateAction<boolean>>;
+  isCircled: boolean;
+  setIsCircled: React.Dispatch<React.SetStateAction<boolean>>;
+  monthColumnCount: MonthColumnCountEnum;
+  setMonthColumnCount: React.Dispatch<
+    React.SetStateAction<MonthColumnCountEnum>
+  >;
 }
 
 const CALENDAR_STATE_DEFAULT: CalendarState = {
@@ -67,6 +79,8 @@ const CALENDAR_STATE_DEFAULT: CalendarState = {
   setFirstMonth: () => {},
   lastMonth: 0,
   setLastMonth: () => {},
+  size: 0,
+  setSize: () => {},
   months: [],
   monthCount: 0,
   firstMonths: [],
@@ -74,6 +88,12 @@ const CALENDAR_STATE_DEFAULT: CalendarState = {
   firstBlanks: [],
   currentDate: new Date(),
   setCurrentDate: () => {},
+  hasBorder: false,
+  setHasBorder: () => {},
+  isCircled: false,
+  setIsCircled: () => {},
+  monthColumnCount: 4,
+  setMonthColumnCount: () => {},
 };
 
 export const useCalendar = (props?: Partial<CalendarState>): CalendarState => {
@@ -88,6 +108,11 @@ export const useCalendar = (props?: Partial<CalendarState>): CalendarState => {
   );
   const [firstMonth, setFirstMonth] = useState<number>(props?.firstMonth ?? 0);
   const [lastMonth, setLastMonth] = useState<number>(props?.lastMonth ?? 11);
+  const [size, setSize] = useState<number>(30);
+  const [hasBorder, setHasBorder] = useState<boolean>(true);
+  const [isCircled, setIsCircled] = useState<boolean>(true);
+  const [monthColumnCount, setMonthColumnCount] =
+    useState<MonthColumnCountEnum>(4);
 
   const yearCount = useMemo(
     () => lastYear - firstYear + 1,
@@ -121,10 +146,12 @@ export const useCalendar = (props?: Partial<CalendarState>): CalendarState => {
 
   const firstBlanks = useMemo(
     () =>
-      monthCount < 4
+      monthCount < monthColumnCount
         ? []
-        : Array.from({ length: firstMonth % 4 }).map((_, i) => i),
-    [firstMonth, monthCount],
+        : Array.from({ length: firstMonth % monthColumnCount }).map(
+            (_, i) => i,
+          ),
+    [firstMonth, monthCount, monthColumnCount],
   );
 
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -140,6 +167,8 @@ export const useCalendar = (props?: Partial<CalendarState>): CalendarState => {
     setFirstMonth,
     lastMonth,
     setLastMonth,
+    size,
+    setSize,
     months,
     monthCount,
     firstMonths,
@@ -147,12 +176,19 @@ export const useCalendar = (props?: Partial<CalendarState>): CalendarState => {
     firstBlanks,
     currentDate,
     setCurrentDate,
+    hasBorder,
+    setHasBorder,
+    isCircled,
+    setIsCircled,
+    monthColumnCount,
+    setMonthColumnCount,
   };
 };
 
 export const CalendarStyle = {
-  root: (monthCount: number): CSSProperties => {
-    const repeat = monthCount >= 4 ? 4 : monthCount;
+  root: (monthCount: number, monthColumnCount: number): CSSProperties => {
+    const repeat =
+      monthCount >= monthColumnCount ? monthColumnCount : monthCount;
 
     return {
       display: "grid",
@@ -164,10 +200,10 @@ export const CalendarStyle = {
 
 export const Calendar = () => {
   const calendar = useCalendarFromContext();
-  const { years, firstBlanks, monthCount } = calendar;
+  const { years, firstBlanks, monthCount, monthColumnCount } = calendar;
 
   return (
-    <div style={CalendarStyle.root(monthCount)}>
+    <div style={CalendarStyle.root(monthCount, monthColumnCount)}>
       {firstBlanks.map((i) => (
         <div key={i} />
       ))}
